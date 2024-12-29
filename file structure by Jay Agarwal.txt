@@ -1,0 +1,19 @@
+My File structure look like this -:
+
+event-planning-system/
+├── backend/
+│   ├── venv/
+│   ├── main.py
+│   └── .env
+├── frontend/
+│   ├── node_modules/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   └── index.css
+│   ├── package.json
+│   └── tailwind.config.js
+
+
+-:::::::::::::::::::::::::::::::BY JAY AGARWAL::::::::::::::::::::::::::::::::::

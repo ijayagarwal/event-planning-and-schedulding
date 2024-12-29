@@ -1,0 +1,22 @@
+To test the API endpoints we have to do program like mentioned below for login , Registering a user, 
+create an event etc.
+
+
+To test the API endpoints, you can use tools like Postman or curl:
+
+Register a user:
+
+curl -X POST http://localhost:3000/api/users/register \
+-H "Content-Type: application/json" \
+-d '{"name":"John Doe","email":"john@example.com","password":"password123","role":"organizer"}'
+
+Login:
+curl -X POST http://localhost:3000/api/users/login \
+-H "Content-Type: application/json" \
+-d '{"email":"john@example.com","password":"password123"}'
+
+Create an event (use the token received from login):
+curl -X POST http://localhost:3000/api/events \
+-H "Authorization: Bearer YOUR_TOKEN_HERE" \
+-H "Content-Type: application/json" \
+-d '{"title":"Business Conference","startDate":"2024-01-01","endDate":"2024-01-02","budget":5000}'

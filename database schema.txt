@@ -1,0 +1,88 @@
+-- Database Schema
+
+-- Users table
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('organizer', 'client', 'vendor')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Events table
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    client_id UUID REFERENCES users(id),
+    organizer_id UUID REFERENCES users(id),
+    status VARCHAR(20) DEFAULT 'draft',
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
+    budget DECIMAL(10,2),
+    actual_cost DECIMAL(10,2) DEFAULT 0,
+    location VARCHAR(200),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT valid_date_range CHECK (end_date > start_date)
+);
+
+-- Vendors table
+CREATE TABLE vendors (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id),
+    company_name VARCHAR(100) NOT NULL,
+    service_type VARCHAR(50) NOT NULL,
+    rate_per_hour DECIMAL(10,2),
+    description TEXT,
+    contact_phone VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Event_Vendors table (Many-to-Many relationship)
+CREATE TABLE event_vendors (
+    event_id UUID REFERENCES events(id),
+    vendor_id UUID REFERENCES vendors(id),
+    status VARCHAR(20) DEFAULT 'pending',
+    cost DECIMAL(10,2),
+    PRIMARY KEY (event_id, vendor_id)
+);
+
+-- Messages table
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id UUID REFERENCES events(id),
+    sender_id UUID REFERENCES users(id),
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Notifications table
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id),
+    event_id UUID REFERENCES events(id),
+    message TEXT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Budget_Items table
+CREATE TABLE budget_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id UUID REFERENCES events(id),
+    description VARCHAR(200) NOT NULL,
+    estimated_cost DECIMAL(10,2),
+    actual_cost DECIMAL(10,2),
+    category VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better query performance
+CREATE INDEX idx_events_client ON events(client_id);
+CREATE INDEX idx_events_organizer ON events(organizer_id);
+CREATE INDEX idx_messages_event ON messages(event_id);
+CREATE INDEX idx_notifications_user ON notifications(user_id);
+CREATE INDEX idx_budget_items_event ON budget_items(event_id);
